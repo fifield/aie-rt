@@ -45,6 +45,8 @@
 	#define XAIE_DEFAULT_BACKEND XAIE_IO_BACKEND_BAREMETAL
 #elif defined (__AIESOCKET__)
 	#define XAIE_DEFAULT_BACKEND XAIE_IO_BACKEND_SOCKET
+#elif defined (__AIEAMDAIR__)
+	#define XAIE_DEFAULT_BACKEND XAIE_IO_BACKEND_AMDAIR
 #else
 	#define __AIEDEBUG__
 	#define XAIE_DEFAULT_BACKEND XAIE_IO_BACKEND_DEBUG
@@ -85,6 +87,11 @@
 #else
 	#define SOCKETBACKEND NULL
 #endif
+#if defined (__AIEAMDAIR__)
+	#define AMDAIRBACKEND &AmdairBackend
+#else
+	#define AMDAIRBACKEND NULL
+#endif
 #if defined (__AIEDEBUG__)
 	#define DEBUGBACKEND &DebugBackend
 #else
@@ -99,7 +106,7 @@ extern const XAie_Backend BaremetalBackend;
 extern const XAie_Backend DebugBackend;
 extern const XAie_Backend LinuxBackend;
 extern const XAie_Backend SocketBackend;
-extern const XAie_Backend ControlCodeBackend;
+extern const XAie_Backend AmdAirBackend;
 
 static const XAie_Backend *IOBackend[XAIE_IO_BACKEND_MAX] =
 {
@@ -110,7 +117,7 @@ static const XAie_Backend *IOBackend[XAIE_IO_BACKEND_MAX] =
 	DEBUGBACKEND,
 	LINUXBACKEND,
 	SOCKETBACKEND,
-	CONTROLCODEBACKEND,
+	AMDAIRBACKEND,
 };
 
 /************************** Function Definitions *****************************/
@@ -156,10 +163,17 @@ AieRC XAie_GetPartitionList(XAie_DevInst *DevInst)
 * @note		Internal Only.
 *
 ******************************************************************************/
-AieRC XAie_IOInit(XAie_DevInst *DevInst)
+AieRC XAie_IOInit(XAie_DevInst *DevInst, XAie_BackendType backend)
 {
 	AieRC RC;
-	const XAie_Backend *Backend = IOBackend[XAIE_DEFAULT_BACKEND];
+	const XAie_Backend *Backend;
+
+	if (backend >= XAIE_IO_BACKEND_MAX) {
+		XAIE_DBG("Invalid backend %d; using default\n", backend);
+		backend = XAIE_DEFAULT_BACKEND;
+	}
+
+	Backend = IOBackend[backend];
 
 	RC = Backend->Ops.Init(DevInst);
 	if(RC != XAIE_OK) {

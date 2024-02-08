@@ -100,6 +100,7 @@ typedef enum {
 	XAIE_IO_BACKEND_LINUX, /* Linux kernel backend */
 	XAIE_IO_BACKEND_SOCKET, /* Socket backend */
 	XAIE_IO_BACKEND_CONTROLCODE,
+	XAIE_IO_BACKEND_AMDAIR, /* Use with amdair driver */
 	XAIE_IO_BACKEND_MAX
 } XAie_BackendType;
 
@@ -191,6 +192,7 @@ typedef struct {
 	u8 AieTileRowStart;
 	u8 AieTileNumRows;
 	XAie_PartitionProp PartProp;
+	XAie_BackendType Backend;
 } XAie_Config;
 
 /*
