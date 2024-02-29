@@ -132,10 +132,6 @@ static AieRC XAie_DebugIO_Read32(void *IOInst, u64 RegOff, u32 *Data)
 
 	*Data = 0U;
 	PRINT("R: %p, 0x%x\n", (void *)UINTPTR_T DebugIOInst->BaseAddr + RegOff, 0);
-
-	return XAIE_OK;
-}
-
 /*****************************************************************************/
 /**
 *
