@@ -88,7 +88,7 @@
 	#define SOCKETBACKEND NULL
 #endif
 #if defined (__AIEAMDAIR__)
-	#define AMDAIRBACKEND &AmdairBackend
+	#define AMDAIRBACKEND &AmdAirBackend
 #else
 	#define AMDAIRBACKEND NULL
 #endif
