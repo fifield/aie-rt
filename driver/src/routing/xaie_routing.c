@@ -67,7 +67,7 @@ void PrintBDBits(uint64_t num)
 /* Queue Operations */
 static Queue* createQueue(unsigned capacity)
 {
-	Queue* queue = (Queue*) aligned_alloc(16, sizeof(Queue));
+	Queue* queue = (Queue*) malloc(sizeof(Queue));
 	if (queue == NULL){
 		XAIE_ERROR("Queue allocation returned NULL.\n");
 		return NULL;
@@ -75,7 +75,7 @@ static Queue* createQueue(unsigned capacity)
 	queue->capacity = capacity;
 	queue->front = queue->size = 0;
 	queue->rear = capacity - 1;
-	queue->array = (XAie_LocType*) aligned_alloc(16, queue->capacity * sizeof(XAie_LocType));
+	queue->array = (XAie_LocType*) malloc((size_t)queue->capacity * sizeof(XAie_LocType));
 	return queue;
 }
 
@@ -1546,7 +1546,7 @@ static AieRC _XAie_performRoutingOnPath(XAie_RoutingInstance *routingInstance, X
 	XAie_RoutingStep *lastStep = NULL;
 	XAie_RoutingPath* CurrRoutingPath = NULL;
 
-	CurrRoutingPath = (XAie_RoutingPath*)aligned_alloc(16, sizeof(XAie_RoutingPath));
+	CurrRoutingPath = (XAie_RoutingPath*)malloc(sizeof(XAie_RoutingPath));
 	if (CurrRoutingPath == NULL) {
 		XAIE_ERROR("Routing path allocation failed!\n");
 		return XAIE_ERR;
@@ -1603,7 +1603,7 @@ static AieRC _XAie_performRoutingOnPath(XAie_RoutingInstance *routingInstance, X
 							lastDir, lastStream, dirLast, destStream);
 
 			/* Create a new routing step */
-			XAie_RoutingStep *newStep = aligned_alloc(16, sizeof(XAie_RoutingStep));
+			XAie_RoutingStep *newStep = (XAie_RoutingStep*)malloc(sizeof(XAie_RoutingStep));
 			newStep->sourceTile = LastTile;
 			newStep->sourceStream = lastStream;
 			newStep->destStream = destStream;
@@ -1638,7 +1638,7 @@ static AieRC _XAie_performRoutingOnPath(XAie_RoutingInstance *routingInstance, X
 
 			if (Sourceconstraint->routesDB == NULL) {
 				XAIE_DBG("Adding first route to routes DB\n");
-				Sourceconstraint->routesDB = aligned_alloc(16,
+				Sourceconstraint->routesDB = (XAie_ProgrammedRoutes*)malloc(
 								sizeof(XAie_ProgrammedRoutes));
 				Sourceconstraint->routesDB->routePath = CurrRoutingPath;
 			}
@@ -1720,7 +1720,7 @@ static AieRC _XAie_performRoutingOnPath(XAie_RoutingInstance *routingInstance, X
 				return XAIE_ERR;
 			}
 			/* Create a new routing step */
-			XAie_RoutingStep *newStep = aligned_alloc(16, sizeof(XAie_RoutingStep));
+			XAie_RoutingStep *newStep = (XAie_RoutingStep*)malloc(sizeof(XAie_RoutingStep));
 			newStep->sourceTile = SourceTile;
 			newStep->sourceStream = sourceStream;
 			newStep->destStream = destStream;
@@ -2031,7 +2031,7 @@ static bool _XAie_findShortestPath(XAie_RoutingInstance *routingInstance,
 		}
 	}
 
-	visited = (bool**)aligned_alloc(16, MAX_COLS * sizeof(bool*));
+	visited = (bool**)malloc(MAX_COLS * sizeof(bool*));
 	memset(visited, 0, MAX_COLS * sizeof(bool*));
 
 	if (visited == NULL) {
@@ -2041,7 +2041,7 @@ static bool _XAie_findShortestPath(XAie_RoutingInstance *routingInstance,
 	}
 
 	for (u32 i = 0; i < MAX_COLS; i++) {
-		visited[i] = (bool*)aligned_alloc(16, MAX_ROWS * sizeof(bool));
+		visited[i] = (bool*)malloc(MAX_ROWS * sizeof(bool));
 
 		if (visited[i] == NULL) {
 			XAIE_ERROR("findShortestPath backend failed!. "
@@ -2380,7 +2380,7 @@ AieRC XAie_Route(XAie_RoutingInstance *routingInstance,  XAie_RouteConstraints* 
 		return XAIE_ERR;
 	}
 
-	XAie_LocType *path = aligned_alloc(16,
+	XAie_LocType *path = (XAie_LocType *)malloc(
 			routingInstance->NumRows * routingInstance->NumCols * sizeof(XAie_LocType));
 	if (!path) {
 		XAIE_ERROR("XAie_Route backend Failed!. Memory allocation failed\n");
@@ -2499,7 +2499,7 @@ static bool _XAie_isTileBlackListed(XAie_LocType CurrTile,
 XAie_RoutingInstance* XAie_InitRoutingHandler(XAie_DevInst *DevInst)
 {
 	XAie_RoutingInstance* RoutingInstance;
-	RoutingInstance = (XAie_RoutingInstance*)aligned_alloc(16, sizeof(XAie_RoutingInstance));
+	RoutingInstance = (XAie_RoutingInstance*)malloc( sizeof(XAie_RoutingInstance));
 	if (RoutingInstance == NULL) {
 		XAIE_ERROR("XAie_InitRoutingHandler backend failed!. Failed to allocate memory\n");
 		return NULL;
@@ -2524,7 +2524,7 @@ XAie_RoutingInstance* XAie_InitRoutingHandler(XAie_DevInst *DevInst)
 	RoutingInstance->NumCols = NumCols;
 
 	/* Allocate memory for each row of CoreConstraintPerCore */
-	RoutingInstance->CoreConstraintPerCore = (XAie_CoreConstraint***)aligned_alloc(16,
+	RoutingInstance->CoreConstraintPerCore = (XAie_CoreConstraint***)malloc(
 						NumCols * sizeof(XAie_CoreConstraint**));
 
 	if (RoutingInstance->CoreConstraintPerCore == NULL) {
@@ -2535,8 +2535,8 @@ XAie_RoutingInstance* XAie_InitRoutingHandler(XAie_DevInst *DevInst)
 
 	for (u8 col = 0; col < NumCols; col++) {
 		/* Allocate memory for each column in a col */
-		RoutingInstance->CoreConstraintPerCore[col] = (XAie_CoreConstraint**)aligned_alloc
-						(16, NumRows * sizeof(XAie_CoreConstraint*));
+		RoutingInstance->CoreConstraintPerCore[col] = (XAie_CoreConstraint**)malloc(
+						NumRows * sizeof(XAie_CoreConstraint*));
 		if (RoutingInstance->CoreConstraintPerCore[col] == NULL) {
 			XAIE_ERROR("XAie_InitRoutingHandler backend failed!. "
 				"Failed to allocate memory to CoreConstraintPerCore[%d] \n", col);
@@ -2546,14 +2546,12 @@ XAie_RoutingInstance* XAie_InitRoutingHandler(XAie_DevInst *DevInst)
 		for (u8 row = 0; row < NumRows; row++) {
 			/* Allocate memory for each core constraint */
 			RoutingInstance->CoreConstraintPerCore[col][row] =
-				(XAie_CoreConstraint*)aligned_alloc(16,sizeof(XAie_CoreConstraint));
+				(XAie_CoreConstraint*)malloc(sizeof(XAie_CoreConstraint));
 		}
 	}
 
-	XAie_ChannelPortMapping* defaultHost2AIEPortChannelMapping = aligned_alloc
-						(16, 2*sizeof(XAie_ChannelPortMapping));
-	XAie_ChannelPortMapping* defaultAIE2HostPortChannelMapping = aligned_alloc
-						(16, 2*sizeof(XAie_ChannelPortMapping));
+	XAie_ChannelPortMapping* defaultHost2AIEPortChannelMapping = (XAie_ChannelPortMapping*)malloc(2*sizeof(XAie_ChannelPortMapping));
+	XAie_ChannelPortMapping* defaultAIE2HostPortChannelMapping = (XAie_ChannelPortMapping*)malloc(2*sizeof(XAie_ChannelPortMapping));
 
 	defaultHost2AIEPortChannelMapping[0].port = 3;
 	defaultHost2AIEPortChannelMapping[0].channel = 0;
@@ -2802,8 +2800,7 @@ void XAieRoutingInstance_free(XAie_RoutingInstance* RoutingInstance)
 static void _XAie_addRouteInRoutesDB(XAie_ProgrammedRoutes** head, XAie_RoutingPath* routePath)
 {
 	XAIE_DBG("Adding next route\n");
-	XAie_ProgrammedRoutes* newNode = (XAie_ProgrammedRoutes*)aligned_alloc
-						(16, sizeof(XAie_ProgrammedRoutes));
+	XAie_ProgrammedRoutes* newNode = (XAie_ProgrammedRoutes*)malloc(sizeof(XAie_ProgrammedRoutes));
 	if (newNode == NULL) {
 		XAIE_DBG("Error creating a new Programmed Route\n");
 		return;
