@@ -27,14 +27,27 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef __linux__
+#ifdef __AIESIM__
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <pthread.h>
-#include <unistd.h>
+#endif
 #endif
 
 #ifdef __AIESIM__ /* AIE simulator */
 
-#include "main_rts.h"
+#include <stdint.h>
+#include <unistd.h>
+
+typedef unsigned int uint;
+
+void ess_Write32(uint64_t Addr, uint Data);
+uint ess_Read32(uint64_t Addr);
+void ess_WriteCmd(unsigned char Command, unsigned char ColId, unsigned char RowId, unsigned int CmdWd0, unsigned int CmdWd1, unsigned char *CmdStr);
+
+void ess_NpiWrite32(uint64_t Addr, uint Data);
+uint ess_NpiRead32(uint64_t Addr);
 
 #endif
 
@@ -461,7 +474,11 @@ static AieRC XAie_SimIO_RunOp(void *IOInst, XAie_DevInst *DevInst,
 
 static u64 XAie_SimIOGetTid(void)
 {
-		return (u64)pthread_self();
+#ifdef _WIN32
+	return GetCurrentThreadId();
+#else
+	return (u64)pthread_self();
+#endif
 }
 
 #else

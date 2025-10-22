@@ -392,11 +392,12 @@ static AieRC _XAie_RequestBroadcastChannelRscCommon(XAie_DevInst *DevInst,
 AieRC _XAie_RequestRscCommon(XAie_DevInst *DevInst, XAie_BackendTilesRsc *Args)
 {
 	AieRC RC;
-	u32 *RscArrPerTile;
-
-	RscArrPerTile = (u32*)malloc(Args->NumRscPerTile * sizeof(u32));
+	u32 *RscArrPerTile = malloc(sizeof(u32) * Args->NumRscPerTile);
+	if (RscArrPerTile == NULL)
+		return XAIE_ERR;
 
 	if (Args->RscType == XAIE_BCAST_CHANNEL_RSC) {
+		free((void*)RscArrPerTile);
 		return _XAie_RequestBroadcastChannelRscCommon(DevInst, Args);
 	}
 
@@ -419,9 +420,8 @@ AieRC _XAie_RequestRscCommon(XAie_DevInst *DevInst, XAie_BackendTilesRsc *Args)
 			for (u32 j = 0; j < Args->NumRscPerTile; j++) {
 				Args->Rscs[j].RscId = RscArrPerTile[j];
 			}
-
 		}
-		free(RscArrPerTile);
+		free((void*)RscArrPerTile);
 		return RC;
 	}
 
@@ -434,7 +434,7 @@ AieRC _XAie_RequestRscCommon(XAie_DevInst *DevInst, XAie_BackendTilesRsc *Args)
 			Args->Rscs[j].RscId = RscArrPerTile[j];
 		}
 	}
-	free(RscArrPerTile);
+	free((void*)RscArrPerTile);
 	return RC;
 }
 
